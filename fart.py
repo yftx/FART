@@ -2287,6 +2287,7 @@ class dex_parser:
 			flags = 1
 		
 		return value+":",flags
+# 处理命令行参数的库
 import getopt
 def init():
 	global filename
