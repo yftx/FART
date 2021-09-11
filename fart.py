@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 import sys
+# 字节字符串与二进制数据之间的转换
 import struct
 import array
 filename = "_data_app_com.example.dexcode-1_base.apk0.dex_722044_0"
@@ -9,7 +10,9 @@ insfilename ="722044_ins.bin"
 DEX_MAGIC = "dex\n"
 DEX_OPT_MAGIC = "dey\n"
 import base64
+# Re库是Python的标准库，主要用于字符串匹配
 import re
+# 定义字典,相当于是 hashmap
 methodTable={}
 
 
@@ -53,6 +56,9 @@ def get_uleb128(content):
 	value = 0
 	if len(content) < 5:
 		for i in xrange(0, len(content)):
+			# ord() 函数是 chr() 函数（对于8位的ASCII字符串）或 unichr() 函数（对于Unicode对象）的配对函数，
+			# 它以一个字符（长度为1的字符串）作为参数，返回对应的 ASCII 数值，或者 Unicode 数值，
+			# 如果所给的 Unicode 字符超出了你的 Python 定义范围，则会引发一个 TypeError 的异常。
 			tmp = ord(content[i]) & 0x7f
 			value = tmp << (i * 7) | value
 			if (ord(content[i]) & 0x80) != 0x80:
@@ -659,6 +665,7 @@ class DexMethod:
     inssize=0
     offset=0
     idx=0
+	# 类实例化时会调用该方法,相当于构造方法
     def __init__(self,number,methodname, inssize,offset):
 		self.idx=number
 		self.methodname = methodname
@@ -667,6 +674,7 @@ class DexMethod:
 def parseinsfile():
     global insfilename
     insfile=open(insfilename)
+	# 从文件中读取内容
     content=insfile.read()
     insfile.close()
     #;{name:artMethod::dumpmethod DexFile_dumpDexFile'
@@ -675,7 +683,8 @@ def parseinsfile():
     # code_item_len:40,
     # code_item_len:40,
     # ins:AgABAAIAAABLnY4ADAAAACIAFwNwEPoOAABuIP4OEAAMAR8BFwMRAQ==};
-    insarray=re.findall(r"{name:(.*?),method_idx:(.*?),offset:(.*?),code_item_len:(.*?),ins:(.*?)}",content) #(.*?)最短匹配
+    # re 是正则表达式库
+	insarray=re.findall(r"{name:(.*?),method_idx:(.*?),offset:(.*?),code_item_len:(.*?),ins:(.*?)}",content) #(.*?)最短匹配
     for eachins in insarray:
 		methodname=eachins[0].replace(" ","")
 		number=(int)(eachins[1])
@@ -1896,6 +1905,7 @@ class dex_parser:
 		global DEX_OPT_MAGIC
 		self.m_javaobject_id = 0
 		self.m_filename = filename
+		# 以二进制形式读取文件
 		self.m_fd = open(filename,"rb")
 		self.m_content = self.m_fd.read()
 		self.m_fd.close()
@@ -1910,7 +1920,10 @@ class dex_parser:
 
 		bOffset = self.m_stringIdsOff
 		if self.m_stringIdsSize > 0:
+			# xrange() 函数用法与 range 完全相同，所不同的是生成的不是一个数组，而是一个生成器。
+			# python2.x range() 函数可创建一个整数列表，一般用在 for 循环中。
 			for i in xrange(0,self.m_stringIdsSize):
+				# 按照给定的格式(fmt)解析字节流string，返回解析出来的tuple
 				offset, = struct.unpack_from("I",self.m_content,bOffset + i * 4)
 				if i == 0:
 					start = offset
@@ -2290,9 +2303,11 @@ class dex_parser:
 # 处理命令行参数的库
 import getopt
 def init():
+	# 全局变量
 	global filename
 	global insfilename
 	try:
+		# 其中-d 参数对应的 dex 文件,-i 参数对应的 bin 文件
 		opts, args = getopt.getopt(sys.argv[1:], "h:d:i:", ["dumpdexfile=", "insfile="])
 	except getopt.GetoptError:
 		print 'Fart.py -d <dumpdexfile> -i <insfile>'
@@ -2314,7 +2329,9 @@ def main():
 	dex = dex_parser(filename)
 if __name__ == "__main__":
 	init()
+	# 清理字典中的数据
 	methodTable.clear()
+	# 解析 bin 文件
 	parseinsfile()
 	print "methodTable length:" + str(len(methodTable))
 	main()
